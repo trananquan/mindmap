@@ -107,11 +107,11 @@ def render_mermaid(mermaid_code):
 
 # Streamlit UI
 st.set_page_config(page_title="AI Flowchart Builder", page_icon="🧠", layout="wide")
-st.title("📊 AI tạo biểu đồ quy trình Flowchart")
+st.title("📊 AI-Powered Flowchart Creator")
 
-title = st.text_input("Tên biểu đồ Flowchart", placeholder="Nhập vào tên biểu đồ.....")
-description = st.text_area("Nhập vào mô tả biểu đồ Flowchart", placeholder="Nhập vào mô tả biểu đồ.....", height=150)
-flow_direction = st.selectbox("Hướng phát triển quy trình", options=["TD (Top-Down)", "LR (Left-Right)", "BT (Bottom-Top)", "RL (Right-Left)"])
+title = st.text_input("Flowchart Title", placeholder="Input Flowchart title.....")
+description = st.text_area("Enter a description for the flowchart", placeholder="Input Flowchart description here.....", height=150)
+flow_direction = st.selectbox("Flow Direction", options=["TD (Top-Down)", "LR (Left-Right)", "BT (Bottom-Top)", "RL (Right-Left)"])
 
 # Mapping for short code
 flow_direction_short = {
@@ -121,19 +121,19 @@ flow_direction_short = {
     "RL (Right-Left)": "RL"
 }[flow_direction]
 
-if st.button("Tạo biểu đồ"):
+if st.button("Create Flowchart"):
     if description:
-        with st.spinner('AI đang xây dựng biểu đồ cho bạn...'):
+        with st.spinner('AI is building Flowchart...'):
             try:
                 flowchart_data = get_flowchart_data_from_gemini(description)
                 mermaid_code = build_mermaid_flowchart(title, flowchart_data, flow_direction_short)
-                st.subheader("Biểu đồ quy trình Flowchart")
+                st.subheader("Generated Flowchart Diagram")
                 render_mermaid(mermaid_code)
                 st.code(mermaid_code, language='markdown')
             except Exception as e:
-                st.error(f"Xảy ra lỗi: {e}")
+                st.error(f"Error generating Flowchart: {e}")
     else:
-        st.warning("Xin hãy nhập vào mô tả biểu đồ.")
+        st.warning("Please enter a description first.")
 
 st.markdown(
         """
