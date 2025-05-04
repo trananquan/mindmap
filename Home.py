@@ -1,8 +1,6 @@
 import streamlit as st
 from st_paywall import add_auth
 
-st.title("My Subscription App")
-
 if not st.experimental_user.is_logged_in:
     st.write("Please log in to access this app")
     if st.button("Log in"):
