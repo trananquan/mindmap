@@ -8,7 +8,7 @@ API_KEY = "AIzaSyAD5-tRTbhtr17baOAVq307Fguv5oa49hY"
 def configure_genai():
     """Configure the Gemini AI with the API key."""
     if not API_KEY:
-        st.error("API Key không hợp lệ. Xin hãy cung cấp Google API key hợp lệ.")
+        st.error("API Key is missing. Please provide a valid Google API key.")
         return False
     try:
         genai.configure(api_key=API_KEY)
@@ -26,7 +26,7 @@ def create_mindmap_markdown(text):
         max_chars = 90000
         if len(text) > max_chars:
             text = text[:max_chars] + "..."
-            st.warning(f"Trích xuất tổng cộng {max_chars} ký tự dựa trên độ dài văn bản.")
+            st.warning(f"Text was truncated to {max_chars} characters due to length limitations.")
         
         prompt = """
         Create a hierarchical markdown mindmap from the following text. 
@@ -137,7 +137,7 @@ def create_markmap_html(markdown_content):
         <script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.14.3/dist/browser/index.min.js"></script>
     </head>
     <body>
-        <button id="downloadButton">⬇️ Tải xuống file SVG</button>
+        <button id="downloadButton">⬇️ Download SVG file</button>
         <svg id="mindmap"></svg>
         <script>
             window.onload = async () => {{
@@ -199,7 +199,7 @@ def create_markmap_html(markdown_content):
 def main():
     st.set_page_config(page_title="Text to Mindmap",page_icon="🧠",layout="wide")
     
-    st.title("📚 AI chuyển gợi ý thành Sơ đồ MindMap ") 
+    st.title("📚 AI Text to MindMap Generator") 
     st.markdown(
         """
         <style>
@@ -241,28 +241,28 @@ def main():
         return
 
     # Add a text area for user-provided prompt
-    st.subheader("📓Tạo Mindmap từ gợi ý")
-    prompt_text = st.text_area("Nhập đoạn gợi ý, yêu cầu của bạn tại đây:", placeholder="Nhập vào gợi ý, yêu cầu.....", height=200)
+    st.subheader("📓Create Mindmap from text prompt")
+    prompt_text = st.text_area("Enter your text prompt here:", height=200)
 
-    if st.button("Tạo Mindmap"):
+    if st.button("Create Mindmap"):
         if prompt_text.strip():
-            with st.spinner("🔄 Xuất ra Mindmap từ gợi ý văn bản..."):
+            with st.spinner("🔄 Generating mindmap from text prompt..."):
                 markdown_content = generate_mindmap_from_prompt(prompt_text)
 
                 if markdown_content:
-                    tab1, tab2 = st.tabs(["📊 Mindmap", "📝 Ghi chú"])
+                    tab1, tab2 = st.tabs(["📊 Mindmap", "📝 Markdown"])
 
                     with tab1:
-                        st.subheader("Mindmap trực quan")
+                        st.subheader("Interactive Mindmap")
                         html_content = create_markmap_html(markdown_content)
                         components.html(html_content, height=700, scrolling=True)
 
                     with tab2:
-                        st.subheader("Ghi chú")
+                        st.subheader("Markdown")
                         st.text_area("Markdown Content", markdown_content, height=400)
 
                         st.download_button(
-                            label="⬇️ Tải xuống ghi chú",
+                            label="⬇️ Download Markdown",
                             data=markdown_content,
                             file_name="mindmap_from_prompt.md",
                             mime="text/markdown"
