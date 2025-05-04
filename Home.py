@@ -1,8 +1,8 @@
 import streamlit as st
-from st_paywall import add_paywall
+from st_paywall import add_auth
 
 # Prevent access without payment
-if not add_paywall(
+if not add_auth(
     stripe_public_key="pk_test_yourStripePublicKeyHere",   # Replace with your real Stripe public key
     product_price_id="price_1YourStripePriceID",           # Replace with your actual Stripe price ID
     title="🔐 Unlock the Mindmap App",
