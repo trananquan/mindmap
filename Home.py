@@ -1,9 +1,6 @@
 import streamlit as st
 from st_paywall import add_auth
 
-# Basic usage with defaults
-add_auth()
-
 # Customized usage
 add_auth(
     required=True,  # Don't stop the app for non-subscribers
