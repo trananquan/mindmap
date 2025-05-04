@@ -1,4 +1,14 @@
 import streamlit as st
+from st_paywall import add_paywall
+
+# Prevent access without payment
+if not add_paywall(
+    stripe_public_key="pk_test_yourStripePublicKeyHere",   # Replace with your real Stripe public key
+    product_price_id="price_1YourStripePriceID",           # Replace with your actual Stripe price ID
+    title="🔐 Unlock the Mindmap App",
+    text="Pay once to unlock full access to our AI-powered Mindmap Creator.",
+):
+    st.stop()
 
 st.set_page_config(page_title="Multi-App", layout="centered")
 st.sidebar.title("Navigation")
