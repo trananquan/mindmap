@@ -1,14 +1,17 @@
 import streamlit as st
 from st_paywall import add_auth
 
-# Prevent access without payment
-if not add_auth(
-    required=True,  # Stop the app if user is not subscribed
-    show_redirect_button=True,  # Show the subscription button
-    subscription_button_text="Subscribe Now!",  # Custom button text
-    button_color="#FF4B4B"
-):
-    st.stop()
+# Basic usage with defaults
+add_auth()
+
+# Customized usage
+add_auth(
+    required=True,  # Don't stop the app for non-subscribers
+    show_redirect_button=True,
+    subscription_button_text="Get Premium Access!",
+    button_color="#4CAF50",  # Green button
+    use_sidebar=False  # Show button in main section
+)
 
 st.set_page_config(page_title="Multi-App", layout="centered")
 st.sidebar.title("Navigation")
