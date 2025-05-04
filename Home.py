@@ -1,9 +1,10 @@
 import streamlit as st
 from st_paywall import add_auth
 
+add_auth()
 # Customized usage
 add_auth(
-    required=True,  # Don't stop the app for non-subscribers
+    required=False,  # Don't stop the app for non-subscribers
     show_redirect_button=True,
     subscription_button_text="Get Premium Access!",
     button_color="#4CAF50",  # Green button
