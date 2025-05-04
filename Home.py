@@ -1,11 +1,15 @@
 import streamlit as st
 from st_paywall import add_auth
 
-add_auth(required=True)
+st.title("My Subscription App")
 
-#after authentication, the email and subscription status is stored in session state
-st.write(st.session_state.email)
-st.write(st.session_state.user_subscribed)
+if not st.experimental_user.is_logged_in:
+    st.write("Please log in to access this app")
+    if st.button("Log in"):
+        st.login()
+else:
+    add_auth(required=True)
+    st.write("Welcome to the premium content!")
 
 st.set_page_config(page_title="Multi-App", layout="centered")
 st.sidebar.title("Navigation")
