@@ -3,10 +3,10 @@ from st_paywall import add_auth
 
 # Prevent access without payment
 if not add_auth(
-    stripe_public_key="pk_test_yourStripePublicKeyHere",   # Replace with your real Stripe public key
-    product_price_id="price_1YourStripePriceID",           # Replace with your actual Stripe price ID
-    title="🔐 Unlock the Mindmap App",
-    text="Pay once to unlock full access to our AI-powered Mindmap Creator.",
+    required=True,  # Stop the app if user is not subscribed
+    show_redirect_button=True,  # Show the subscription button
+    subscription_button_text="Subscribe Now!",  # Custom button text
+    button_color="#FF4B4B"
 ):
     st.stop()
 
