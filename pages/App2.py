@@ -9,7 +9,7 @@ API_KEY = "AIzaSyAD5-tRTbhtr17baOAVq307Fguv5oa49hY"
 def configure_genai():
     """Configure the Gemini AI with the API key."""
     if not API_KEY:
-        st.error("API Key không hợp lệ. Xin hãy cung cấp Google API key hợp lệ.")
+        st.error("API Key is missing. Please provide a valid Google API key.")
         return False
     try:
         genai.configure(api_key=API_KEY)
@@ -28,7 +28,7 @@ def extract_text_from_pdf(pdf_file):
             if page_text:  # Only add non-empty pages
                 text += page_text + "\n"
         if not text.strip():
-            st.warning("Không có văn bản dạng text từ file PDF. Nhập file PDF dạng ký tự, không phải dạng ảnh.")
+            st.warning("No text could be extracted from the PDF. Please ensure it's not scanned or image-based.")
             return None
         return text.strip()
     except Exception as e:
@@ -43,7 +43,7 @@ def create_mindmap_markdown(text):
         max_chars = 90000
         if len(text) > max_chars:
             text = text[:max_chars] + "..."
-            st.warning(f"Trích xuất tổng cộng {max_chars} ký tự dựa trên độ dài văn bản.")
+            st.warning(f"Text was truncated to {max_chars} characters due to length limitations.")
         
         prompt = """
         Create a hierarchical markdown mindmap from the following text. 
@@ -178,7 +178,7 @@ def create_markmap_html(markdown_content):
 def main():
     st.set_page_config(page_title="PDF to Mindmap",page_icon="🧠",layout="wide")
     
-    st.title("📚 AI chuyển văn bản PDF thành sơ đồ Mindmap") 
+    st.title("📚 Text to PDF AI Mindmap Creator") 
     st.markdown(
         """
         <style>
@@ -219,13 +219,13 @@ def main():
     if not configure_genai():
         return
 
-    st.subheader("📓Tạo sơ đồ Mindmap từ file PDF")
+    st.subheader("📓Create Mindmap from PDF file")
     uploaded_file = st.file_uploader("Chọn file PDF", type="pdf")
     
     # Add buttons for PDF conversion and text prompt conversion
-    if st.button("Chuyển PDF thành Mindmap"):
+    if st.button("Convert PDF to Mindmap"):
         if uploaded_file is not None:
-            with st.spinner("🔄 Đang xử lý file PDF và xuất ra mindmap..."):
+            with st.spinner("🔄 Processing PDF and generating mindmap..."):
                 text = extract_text_from_pdf(uploaded_file)
                 
                 if text:
@@ -234,19 +234,19 @@ def main():
                     markdown_content = create_mindmap_markdown(text)
                     
                     if markdown_content:
-                        tab1, tab2 = st.tabs(["📊 Mindmap", "📝 Ghi chú"])
+                        tab1, tab2 = st.tabs(["📊 Mindmap", "📝 Markdown"])
                         
                         with tab1:
-                            st.subheader("Sơ đồ Mindmap")
+                            st.subheader("Interactive Mindmap")
                             html_content = create_markmap_html(markdown_content)
                             components.html(html_content, height=700, scrolling=True)
                         
                         with tab2:
-                            st.subheader("Tạo ghi chú")
-                            st.text_area("Nội dung ghi chú", markdown_content, height=400)
+                            st.subheader("Markdown")
+                            st.text_area("Markdown Content", markdown_content, height=400)
                             
                             st.download_button(
-                                label="⬇️ Tải xuống ghi chú",
+                                label="⬇️ Download Markdown",
                                 data=markdown_content,
                                 file_name="mindmap.md",
                                 mime="text/markdown"
