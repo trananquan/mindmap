@@ -58,8 +58,8 @@ def render_mermaid(mermaid_code):
 st.set_page_config(page_title="AI Timeline Builder",page_icon="🧠", layout="wide")
 st.title("📚  AI Timeline Diagram Creator")
 
-title = st.text_input("Timeline Title", placeholder="Input Timeline title.....")
-description = st.text_area("Enter a description for the timeline", placeholder="Input timeline description here.....", height=150)
+title = st.text_input("Timeline Title/ Tiêu đề Timeline", placeholder="Input Timeline title.....")
+description = st.text_area("Enter a description for the timeline/ Nhập mô tả cho Timeline", placeholder="Input timeline description here.....", height=150)
 
 if st.button("Create Timeline"):
     if description:
