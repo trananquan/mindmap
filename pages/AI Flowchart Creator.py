@@ -108,7 +108,7 @@ def render_mermaid(mermaid_code):
 # Streamlit UI
 st.set_page_config(page_title="AI Flowchart Builder", page_icon="🧠", layout="wide")
 st.title("📊 AI-Powered Flowchart Creator")
-    st.markdown(
+st.markdown(
         """
         <style>
         h1 {
