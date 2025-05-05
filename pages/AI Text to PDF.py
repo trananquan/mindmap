@@ -219,8 +219,8 @@ def main():
     if not configure_genai():
         return
 
-    st.subheader("📓Create Mindmap from PDF file")
-    uploaded_file = st.file_uploader("Chọn file PDF", type="pdf")
+    st.subheader("📓Create Mindmap from PDF file/ Tạo Mindmap từ file PDF")
+    uploaded_file = st.file_uploader("Choose PDF file/ Chọn file PDF", type="pdf")
     
     # Add buttons for PDF conversion and text prompt conversion
     if st.button("Convert PDF to Mindmap"):
