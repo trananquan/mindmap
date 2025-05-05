@@ -109,9 +109,9 @@ def render_mermaid(mermaid_code):
 st.set_page_config(page_title="AI Flowchart Builder", page_icon="🧠", layout="wide")
 st.title("📊 AI-Powered Flowchart Creator")
 
-title = st.text_input("Flowchart Title", placeholder="Input Flowchart title.....")
-description = st.text_area("Enter a description for the flowchart", placeholder="Input Flowchart description here.....", height=150)
-flow_direction = st.selectbox("Flow Direction", options=["TD (Top-Down)", "LR (Left-Right)", "BT (Bottom-Top)", "RL (Right-Left)"])
+title = st.text_input("Flowchart Title/ Tên biểu đồ", placeholder="Input Flowchart title.....")
+description = st.text_area("Enter a description for the flowchart/ Nhập mô tả cho biểu đồ", placeholder="Input Flowchart description here.....", height=150)
+flow_direction = st.selectbox("Flow Direction/ Hướng biểu đồ", options=["TD (Top-Down)", "LR (Left-Right)", "BT (Bottom-Top)", "RL (Right-Left)"])
 
 # Mapping for short code
 flow_direction_short = {
