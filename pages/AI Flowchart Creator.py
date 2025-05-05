@@ -108,6 +108,17 @@ def render_mermaid(mermaid_code):
 # Streamlit UI
 st.set_page_config(page_title="AI Flowchart Builder", page_icon="🧠", layout="wide")
 st.title("📊 AI-Powered Flowchart Creator")
+    st.markdown(
+        """
+        <style>
+        h1 {
+            text-align: center;
+            color: darkblue;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 title = st.text_input("Flowchart Title/ Tên biểu đồ", placeholder="Input Flowchart title.....")
 description = st.text_area("Enter a description for the flowchart/ Nhập mô tả cho biểu đồ", placeholder="Input Flowchart description here.....", height=150)
