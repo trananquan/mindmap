@@ -57,6 +57,17 @@ def render_mermaid(mermaid_code):
 # Streamlit app UI
 st.set_page_config(page_title="AI Timeline Builder",page_icon="🧠", layout="wide")
 st.title("📚  AI Timeline Diagram Creator")
+    st.markdown(
+        """
+        <style>
+        h1 {
+            text-align: center;
+            color: darkblue;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 title = st.text_input("Timeline Title/ Tiêu đề Timeline", placeholder="Input Timeline title.....")
 description = st.text_area("Enter a description for the timeline/ Nhập mô tả cho Timeline", placeholder="Input timeline description here.....", height=150)
