@@ -57,7 +57,7 @@ def render_mermaid(mermaid_code):
 # Streamlit app UI
 st.set_page_config(page_title="AI Timeline Builder",page_icon="🧠", layout="wide")
 st.title("📚  AI Timeline Diagram Creator")
-    st.markdown(
+st.markdown(
         """
         <style>
         h1 {
