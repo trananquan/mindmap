@@ -7,4 +7,5 @@ st.sidebar.info("Use the sidebar to switch pages.")
 st.title("🏠 AI-powered Mindmap Creator")
 st.subheader("Welcome to the AI mindmap Toolkit Homepage!")
 st.image("images/app.1.jpg", use_container_width=True, caption="AI-generated Mindmap")
-st.image("https://drive.google.com/file/d/1yE__OMnyxZwG2xdIo9MTwnqDRqTp2Gcp/view?usp=sharing")
+image_url = "https://drive.google.com/file/d/1yE__OMnyxZwG2xdIo9MTwnqDRqTp2Gcp/view?usp=drive_link" 
+st.image(image_url, caption="Donation for AI Mindmap app")
