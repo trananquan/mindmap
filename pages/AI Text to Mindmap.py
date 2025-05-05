@@ -199,7 +199,7 @@ def create_markmap_html(markdown_content):
 def main():
     st.set_page_config(page_title="Text to Mindmap",page_icon="🧠",layout="wide")
     
-    st.title("📚 AI Text to MindMap Generator") 
+    st.title("📚 AI Text to MindMap Creator") 
     st.markdown(
         """
         <style>
@@ -241,8 +241,8 @@ def main():
         return
 
     # Add a text area for user-provided prompt
-    st.subheader("📓Create Mindmap from text prompt")
-    prompt_text = st.text_area("Enter your text prompt here:", height=200)
+    st.subheader("📓Create Mindmap from text prompt/ Tạo Mindmap từ dòng gợi ý")
+    prompt_text = st.text_area("Input your text prompt/ Nhập vào dòng gợi ý", height=200)
 
     if st.button("Create Mindmap"):
         if prompt_text.strip():
