@@ -8,3 +8,4 @@ st.markdown("<h1 style='color: darkblue;'>🏠 AI-powered Mindmap Creator</h1>",
 st.subheader("Welcome to the AI mindmap Toolkit Homepage!")
 st.image("images/app.1.jpg", use_container_width=True, caption="AI-generated Mindmap")
 
+
