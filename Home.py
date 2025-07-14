@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="Multi-App",page_icon="🏠", layout="centered")
+st.set_page_config(page_title="Multi-App",page_icon="", layout="centered")
 st.sidebar.title("Navigation")
 st.sidebar.info("Use the sidebar to switch pages/ Sử dụng thanh công cụ để chuyển giữa các App.")
 
