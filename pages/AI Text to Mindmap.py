@@ -112,8 +112,8 @@ def create_markmap_html(markdown_content):
         <meta charset="UTF-8">
         <style>
             #mindmap {{
-                width: 100%;
-                height: 400px;
+                width: 100vw;
+                height: 600px;
                 margin: 0;
                 padding: 0;
                 background: white;
@@ -255,7 +255,7 @@ def main():
                     with tab1:
                         st.subheader("Interactive Mindmap")
                         html_content = create_markmap_html(markdown_content)
-                        components.html(html_content, height=400, scrolling=True)
+                        components.html(html_content, height=700, width=1200, scrolling=True)
 
                     with tab2:
                         st.subheader("Markdown")
