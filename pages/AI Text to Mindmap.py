@@ -113,7 +113,7 @@ def create_markmap_html(markdown_content):
         <style>
             #mindmap {{
                 width: 100%;
-                height: 800px;
+                height: 600px;
                 margin: 0;
                 padding: 0;
                 background: white;
