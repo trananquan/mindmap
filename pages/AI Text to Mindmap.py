@@ -112,8 +112,8 @@ def create_markmap_html(markdown_content):
         <meta charset="UTF-8">
         <style>
             #mindmap {{
-                width: 1000px;
-                height: 1000px;
+                width: 100%;
+                min-height: 600px;
                 height: 100vh;
                 margin: 0;
                 padding: 0;
