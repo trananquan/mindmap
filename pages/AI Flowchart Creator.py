@@ -102,6 +102,7 @@ def render_mermaid(mermaid_code):
         </div>
         """,
         height=800,
+        width=1000,
         scrolling=True,
     )
 
