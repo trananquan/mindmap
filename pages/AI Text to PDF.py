@@ -4,7 +4,7 @@ from PyPDF2 import PdfReader
 import streamlit.components.v1 as components
 
 # Define the API key directly in the code
-API_KEY = "AIzaSyAD5-tRTbhtr17baOAVq307Fguv5oa49hY"
+API_KEY = "AIzaSyCSqGtk5Jt8RfMQQh8ySDzjY9R5lbxgcZ0"
 
 def configure_genai():
     """Configure the Gemini AI with the API key."""
