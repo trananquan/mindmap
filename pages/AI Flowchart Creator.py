@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 import json
 
 # Setup Gemini API
-genai.configure(api_key="AIzaSyAD5-tRTbhtr17baOAVq307Fguv5oa49hY")
+genai.configure(api_key="AIzaSyCSqGtk5Jt8RfMQQh8ySDzjY9R5lbxgcZ0")
 
 def get_flowchart_data_from_gemini(description):
     prompt = f"""
