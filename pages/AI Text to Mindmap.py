@@ -3,7 +3,7 @@ import google.generativeai as genai
 import streamlit.components.v1 as components
 
 # Define the API key directly in the code
-API_KEY = "AIzaSyCSqGtk5Jt8RfMQQh8ySDzjY9R5lbxgcZ0"
+API_KEY = "AIzaSyDgpMnXlUyC-Ebi7z4xRkdmxBzvfWkcw2Q"
 
 def configure_genai():
     """Configure the Gemini AI with the API key."""
