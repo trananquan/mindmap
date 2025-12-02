@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 import json
 
 # Setup Gemini API
-genai.configure(api_key="AIzaSyAlh5XgW2DestRDMH6YxmpDpwyh9LUzkPw")
+genai.configure(api_key= st.secrets["GEMINI_API_KEY"])
 
 def get_events_from_gemini(description):
     prompt = f"""
