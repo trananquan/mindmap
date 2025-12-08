@@ -21,9 +21,9 @@ def configure_genai():
 def create_mindmap_markdown(text):
     """Generate mindmap markdown using Gemini AI."""
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-1.5-pro')
         
-        max_chars = 90000
+        max_chars = 30000
         if len(text) > max_chars:
             text = text[:max_chars] + "..."
             st.warning(f"Text was truncated to {max_chars} characters due to length limitations.")
