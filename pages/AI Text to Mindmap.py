@@ -21,7 +21,7 @@ def configure_genai():
 def create_mindmap_markdown(text):
     """Generate mindmap markdown using Gemini AI."""
     try:
-        model = genai.GenerativeModel('gemini-1.5-pro')
+        model = genai.GenerativeModel('gemini-2.5-pro')
         
         max_chars = 30000
         if len(text) > max_chars:
@@ -65,7 +65,7 @@ def create_mindmap_markdown(text):
 def generate_mindmap_from_prompt(prompt_text):
     """Generate a mindmap markdown from a user-provided prompt text."""
     try:
-        model = genai.GenerativeModel('gemini-1.5-pro')
+        model = genai.GenerativeModel('gemini-2.5-pro')
 
         prompt = f"""
         Create a hierarchical markdown mindmap from the following text. 
