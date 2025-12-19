@@ -35,7 +35,7 @@ def get_flowchart_data_from_gemini(description):
 
     Description: {description}
     """
-    model = genai.GenerativeModel('gemini-2.0-flash')
+    model = genai.GenerativeModel('gemini-3-flash-preview')
     response = model.generate_content(prompt)
     text = response.text.strip()
     start = text.find('{')
