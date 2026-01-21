@@ -21,7 +21,7 @@ def configure_genai():
 def create_mindmap_markdown(text):
     """Generate mindmap markdown using Gemini AI."""
     try:
-        model = genai.GenerativeModel('gemini-3-flash-preview')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         
         max_chars = 30000
         if len(text) > max_chars:
