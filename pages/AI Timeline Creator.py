@@ -20,7 +20,7 @@ def get_events_from_gemini(description):
 
     Description: {description}
     """
-    model = genai.GenerativeModel('gemini-3.0-pro-preview')
+    model = genai.GenerativeModel('gemini-3-pro-preview')
     response = model.generate_content(prompt)
     # Find first JSON block
     text = response.text.strip()
