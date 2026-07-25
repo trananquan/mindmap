@@ -1,12 +1,13 @@
 import streamlit as st
-import google.generativeai as genai
+from groq import Groq
 import streamlit.components.v1 as components
 import json
 
-# Setup Gemini API
-genai.configure(api_key= st.secrets["GEMINI_API_KEY"])
+# Setup Groq API
+API_KEY = st.secrets["GROQ_API_KEY"]
+client = Groq(api_key=API_KEY)
 
-def get_flowchart_data_from_gemini(description):
+def get_flowchart_data_from_groq(description):
     prompt = f"""
     Given the description below, generate ONLY flowchart data in strict JSON format.  If requirement is in Vietnamese, keep structure of built diagram 
     and show result in diagram in Vietnamese language.
@@ -35,9 +36,28 @@ def get_flowchart_data_from_gemini(description):
 
     Description: {description}
     """
-    model = genai.GenerativeModel('gemini-3-pro-preview')
-    response = model.generate_content(prompt)
-    text = response.text.strip()
+    response = client.chat.completions.create(
+
+        model="llama-3.3-70b-versatile",
+
+        messages=[
+            {
+                "role":"system",
+                "content":"Return only valid JSON."
+            },
+            {
+                "role":"user",
+                "content":prompt
+            }
+        ],
+
+        temperature=0.2,
+
+        max_tokens=4096
+    )
+
+    text = response.choices[0].message.content.strip()
+
     start = text.find('{')
     end = text.rfind('}')
     json_text = text[start:end+1]
@@ -102,7 +122,6 @@ def render_mermaid(mermaid_code):
         </div>
         """,
         height=800,
-        width=1000,
         scrolling=True,
     )
 
@@ -137,7 +156,7 @@ if st.button("Create Flowchart"):
     if description:
         with st.spinner('AI is building Flowchart...'):
             try:
-                flowchart_data = get_flowchart_data_from_gemini(description)
+                flowchart_data = get_flowchart_data_from_groq(description)
                 mermaid_code = build_mermaid_flowchart(title, flowchart_data, flow_direction_short)
                 st.subheader("Generated Flowchart Diagram")
                 render_mermaid(mermaid_code)
@@ -170,3 +189,4 @@ st.markdown(
         """,
         unsafe_allow_html=True
 )
+
