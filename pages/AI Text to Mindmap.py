@@ -1,74 +1,93 @@
 import streamlit as st
-import google.generativeai as genai
+from groq import Groq
 import streamlit.components.v1 as components
+import re
 
-# Define the API key directly in the code
-API_KEY = st.secrets["GEMINI_API_KEY"]
 
-def configure_genai():
-    """Configure the Gemini AI with the API key."""
-    if not API_KEY:
-        st.error("API Key is missing. Please provide a valid Google API key.")
-        return False
+def configure_groq():
     try:
-        genai.configure(api_key=API_KEY)
+        global client
+        client = Groq(
+            api_key=st.secrets["GROQ_API_KEY"]
+        )
         return True
     except Exception as e:
-        st.error(f"Error configuring Google API: {str(e)}")
+        st.error(f"Error configuring Groq API: {str(e)}")
         return False
 
+def extract_final_nodes(markdown_content):
+    """Extract the leaf nodes (lines with no deeper child lines) from the markdown."""
+    lines = markdown_content.strip().splitlines()
+    levels = []
+    final_nodes = []
 
-def create_mindmap_markdown(text):
-    """Generate mindmap markdown using Gemini AI."""
+    for i, line in enumerate(lines):
+        if not line.strip():
+            continue
+        level = line.count('#')
+        if level == 0:
+            continue
+        is_final = True
+        for j in range(i + 1, len(lines)):
+            next_line = lines[j]
+            next_level = next_line.count('#')
+            if next_level > level:
+                is_final = False
+                break
+            if next_level <= level and next_line.count('#') > 0:
+                break
+        if is_final:
+            final_nodes.append(line.strip('# ').strip())
+
+    return final_nodes
+
+def explain_terms_with_groq(terms):
+    """Generate explanations for a list of terms using Groq AI."""
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash')
-        
-        max_chars = 30000
-        if len(text) > max_chars:
-            text = text[:max_chars] + "..."
-            st.warning(f"Text was truncated to {max_chars} characters due to length limitations.")
-        
-        prompt = """
-        Create a hierarchical markdown mindmap from the following text. 
-        Use proper markdown heading syntax (# for main topics, ## for subtopics, ### for details).
-        Focus on the main concepts and their relationships.
-        Include relevant details and connections between ideas.
-        Keep the structure clean and organized.
-        
-        Format the output exactly like this example:
-        # Main Topic
-        ## Subtopic 1
-        ### Detail 1
-        - Key point 1
-        - Key point 2
-        ### Detail 2
-        ## Subtopic 2
-        ### Detail 3
-        ### Detail 4
-        
-        Text to analyze: {text}
-        
-        Respond only with the markdown mindmap, no additional text.
-        """
-        
-        response = model.generate_content(prompt.format(text=text))
-        
-        if not response.text or not response.text.strip():
-            st.error("Received empty response from Gemini AI")
-            return None
-            
-        return response.text.strip()
+
+        explanations = {}
+        for term in terms:
+
+            prompt = f"Explain the following term in a simple and concise way:\n\nTerm: {term}"
+            response = client.chat.completions.create(
+
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an expert teacher. Explain concepts clearly, simply, and concisely."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+
+                temperature=0.3,
+                max_tokens=512
+
+            )
+
+            explanation = response.choices[0].message.content.strip()
+
+            if not explanation:
+                explanation = "No explanation available."
+
+            explanations[term] = explanation
+        return explanations
+
     except Exception as e:
-        st.error(f"Error generating mindmap: {str(e)}")
-        return None
+
+        st.error(f"Error generating explanations: {str(e)}")
+
+        return {}
 
 def generate_mindmap_from_prompt(prompt_text):
     """Generate a mindmap markdown from a user-provided prompt text."""
     try:
-        model = genai.GenerativeModel('gemini-3-flash-preview')
 
         prompt = f"""
-        Create a hierarchical markdown mindmap from the following text. 
+        Create a hierarchical markdown mindmap from the following text.
         Use proper markdown heading syntax (# for main topics, ## for subtopics, ### for details).
         Focus on the main concepts and their relationships.
         Include relevant details and connections between ideas.
@@ -86,181 +105,153 @@ def generate_mindmap_from_prompt(prompt_text):
         ### Detail 4
 
         Text to analyze: {prompt_text}
-
         Respond only with the markdown mindmap, no additional text.
         """
 
-        response = model.generate_content(prompt)
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
 
-        if not response.text or not response.text.strip():
-            st.error("Received empty response from Gemini AI")
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert at creating hierarchical markdown mindmaps. Always return only the markdown mindmap without any explanation."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+
+            temperature=0.3,
+            max_tokens=4096
+
+        )
+
+        markdown = response.choices[0].message.content.strip()
+
+        # Xóa markdown code fence nếu Groq trả về
+        markdown = re.sub(r"^```(?:markdown|md)?\s*", "", markdown)
+        markdown = re.sub(r"\s*```$", "", markdown)
+        markdown = markdown.strip()
+
+        if not markdown:
+            st.error("Received empty response from Groq")
             return None
 
-        return response.text.strip()
+        return markdown
+
+        return markdown
+
     except Exception as e:
         st.error(f"Error generating mindmap: {str(e)}")
         return None
 
 def create_markmap_html(markdown_content):
-    """Create HTML with enhanced Markmap visualization and a download button."""
-    markdown_content = markdown_content.replace('`', '\\`').replace('${', '\\${')
-    
+    """Create HTML for Markmap visualization."""
+
+    markdown_content = (
+        markdown_content
+        .replace("\\", "\\\\")
+        .replace("`", "\\`")
+        .replace("${", "\\${")
+    )
+
     html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            #mindmap {{
-                width: 100%;
-                height: 600px;
-                margin: 0;
-                padding: 0;
-                background: white;
-            }}
-            #downloadButton {{
-                margin: 10px;
-                padding: 10px 20px;
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                font-size: 16px;
-            }}
-            #downloadButton:hover {{
-                background-color: #45a049;
-            }}
-        </style>
-        <script src="https://cdn.jsdelivr.net/npm/d3@6"></script>
-        <script src="https://cdn.jsdelivr.net/npm/markmap-view"></script>
-        <script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.14.3/dist/browser/index.min.js"></script>
-    </head>
-    <body>
-        <button id="downloadButton">⬇️ Download SVG file</button>
-        <svg id="mindmap"></svg>
-        <script>
-            window.onload = async () => {{
-                try {{
-                    const markdown = `{markdown_content}`;
-                    const transformer = new markmap.Transformer();
-                    const {{root}} = transformer.transform(markdown);
-                    const mm = new markmap.Markmap(document.querySelector('#mindmap'), {{
-                        maxWidth: 300,
-                        color: (node) => {{
-                            const level = node.depth;
-                            return ['#2196f3', '#4caf50', '#ff9800', '#f44336'][level % 4];
-                        }},
-                        paddingX: 16,
-                        autoFit: true,
-                        initialExpandLevel: 2,
-                        duration: 500,
-                    }});
-                    mm.setData(root);
-                    mm.fit();
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
 
-                    // Download button logic
-                    document.getElementById('downloadButton').addEventListener('click', () => {{
-                        const svgElement = document.getElementById('mindmap');
-                        const serializer = new XMLSerializer();
-                        let source = serializer.serializeToString(svgElement);
+<style>
+html, body {{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+}}
 
-                        // Add namespaces
-                        if(!source.match(/^<svg[^>]+xmlns="http\\:\\/\\/www\\.w3\\.org\\/2000\\/svg"/)) {{
-                            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-                        }}
-                        if(!source.match(/^<svg[^>]+"http\\:\\/\\/www\\.w3\\.org\\/1999\\/xlink"/)) {{
-                            source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
-                        }}
+#mindmap {{
+    width:100%;
+    height:650px;
+}}
+</style>
 
-                        const svgBlob = new Blob([source], {{type:"image/svg+xml;charset=utf-8"}});
-                        const url = URL.createObjectURL(svgBlob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = "mindmap.svg";
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
-                    }});
-                }} catch (error) {{
-                    console.error('Error rendering mindmap:', error);
-                    document.body.innerHTML = '<p style="color: red;">Error rendering mindmap. Please check the console for details.</p>';
-                }}
-            }};
-        </script>
-    </body>
-    </html>
-    """
+<script src="https://cdn.jsdelivr.net/npm/d3@6"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-view"></script>
+<script src="https://cdn.jsdelivr.net/npm/markmap-lib@0.15.4/dist/browser/index.min.js"></script>
+
+</head>
+<body>
+<svg id="mindmap"></svg>
+
+<script>
+
+window.onload = () => {{
+
+    try {{
+
+        const markdown = `{markdown_content}`;
+        const transformer = new markmap.Transformer();
+        const result = transformer.transform(markdown);
+        const root = result.root;
+        const mm = new markmap.Markmap(
+            document.querySelector("#mindmap"),
+            {{
+                autoFit:true,
+                duration:500,
+                initialExpandLevel:2,
+                maxWidth:300,
+                paddingX:16
+            }}
+        );
+
+        mm.setData(root);
+        mm.fit();
+
+    }}
+    catch(err){{
+        document.body.innerHTML =
+        "<h3 style='color:red'>"+err+"</h3>";
+
+        console.error(err);
+    }}
+
+}}
+
+</script>
+
+</body>
+</html>
+"""
+
     return html_content
 
-
-
 def main():
-    st.set_page_config(page_title="Text to Mindmap",page_icon="🧠",layout="wide")
-    
-    st.title("📚 AI Text to MindMap Creator") 
-    st.markdown(
-        """
-        <style>
-        h1 {
-            text-align: center;
-            color: darkblue;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    # Add custom CSS for dark blue buttons
-    st.markdown(
-        """
-        <style>
-        div.stButton > button {
-            background-color: blue;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        div.stButton > button:hover {
-            background-color: #002244;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    if not configure_genai():
+    st.set_page_config(page_title="Text to Mindmap", page_icon="🧠", layout="wide")
+    st.title("📚 AI Text to MindMap Creator")
+
+    if not configure_groq():
         return
 
-    # Add a text area for user-provided prompt
-    st.subheader("📓Create Mindmap from text prompt/ Tạo Mindmap từ dòng gợi ý")
-    prompt_text = st.text_area("Input your text prompt/ Nhập vào dòng gợi ý", height=200)
+    st.subheader("📓 Create Mindmap from Prompt")
+    prompt_text = st.text_area("Input your text prompt:", height=200)
 
     if st.button("Create Mindmap"):
         if prompt_text.strip():
-            with st.spinner("🔄 Generating mindmap from text prompt..."):
+            with st.spinner("🔄 Generating mindmap..."):
                 markdown_content = generate_mindmap_from_prompt(prompt_text)
 
                 if markdown_content:
-                    tab1, tab2 = st.tabs(["📊 Mindmap", "📝 Markdown"])
+                    tab1, tab2, tab3 = st.tabs(["📊 Mindmap", "📝 Markdown", "🔍 Explanations"])
 
                     with tab1:
                         st.subheader("Interactive Mindmap")
                         html_content = create_markmap_html(markdown_content)
-                        components.html(html_content, height=700, width=1000, scrolling=True)
+                        components.html(html_content, height=700, scrolling=True)
 
                     with tab2:
                         st.subheader("Markdown")
                         st.text_area("Markdown Content", markdown_content, height=400)
-
                         st.download_button(
                             label="⬇️ Download Markdown",
                             data=markdown_content,
@@ -268,7 +259,18 @@ def main():
                             mime="text/markdown"
                         )
 
+                    with tab3:
+                        st.subheader("Explanations for Final Nodes")
+                        final_terms = extract_final_nodes(markdown_content)
+                        if final_terms:
+                            explanations = explain_terms_with_groq(final_terms)
+                            for term, explanation in explanations.items():
+                                st.markdown(f"**{term}**: {explanation}")
+                        else:
+                            st.info("No final nodes found to explain.")
+
 if __name__ == "__main__":
     main()
+
 
 
