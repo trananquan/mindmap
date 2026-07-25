@@ -1,21 +1,28 @@
 import streamlit as st
-import google.generativeai as genai
+from groq import Groq
 from PyPDF2 import PdfReader
 import streamlit.components.v1 as components
 
 # Define the API key directly in the code
-API_KEY = st.secrets["GEMINI_API_KEY"]
+API_KEY = st.secrets["GROQ_API_KEY"]
+client = Groq(api_key=API_KEY)
 
-def configure_genai():
-    """Configure the Gemini AI with the API key."""
+def configure_groq():
+
+    global client
+
     if not API_KEY:
-        st.error("API Key is missing. Please provide a valid Google API key.")
+        st.error("API Key is missing.")
         return False
+
     try:
-        genai.configure(api_key=API_KEY)
+
+        client = Groq(api_key=API_KEY)
         return True
+
     except Exception as e:
-        st.error(f"Error configuring Google API: {str(e)}")
+
+        st.error(str(e))
         return False
 
 def extract_text_from_pdf(pdf_file):
@@ -36,23 +43,24 @@ def extract_text_from_pdf(pdf_file):
         return None
 
 def create_mindmap_markdown(text):
-    """Generate mindmap markdown using Gemini AI."""
+    """Generate mindmap markdown using Groq AI."""
+
     try:
-        model = genai.GenerativeModel('gemini-3-flash-preview')
-        
-        max_chars = 40000
+        max_chars = 90000
         if len(text) > max_chars:
             text = text[:max_chars] + "..."
-            st.warning(f"Text was truncated to {max_chars} characters due to length limitations.")
-        
+            st.warning(
+                f"Text was truncated to {max_chars} characters due to length limitations."
+            )
+
         prompt = """
-        Create a hierarchical markdown mindmap from the following text. 
+        Create a hierarchical markdown mindmap from the following text.
         Use proper markdown heading syntax (# for main topics, ## for subtopics, ### for details).
         Focus on the main concepts and their relationships.
         Include relevant details and connections between ideas.
         Keep the structure clean and organized.
-        
         Format the output exactly like this example:
+
         # Main Topic
         ## Subtopic 1
         ### Detail 1
@@ -62,19 +70,38 @@ def create_mindmap_markdown(text):
         ## Subtopic 2
         ### Detail 3
         ### Detail 4
-        
-        Text to analyze: {text}
-        
+
+        Text to analyze:
+
+        {text}
+
         Respond only with the markdown mindmap, no additional text.
         """
-        
-        response = model.generate_content(prompt.format(text=text))
-        
-        if not response.text or not response.text.strip():
-            st.error("Received empty response from Gemini AI")
+
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert at organizing knowledge into hierarchical markdown mindmaps."
+                },
+                {
+                    "role": "user",
+                    "content": prompt.format(text=text)
+                }
+            ],
+
+            temperature=0.3,
+            max_tokens=4096
+        )
+
+        markdown = response.choices[0].message.content.strip()
+
+        if not markdown:
+            st.error("Received empty response from Groq")
             return None
-            
-        return response.text.strip()
+        return markdown
+
     except Exception as e:
         st.error(f"Error generating mindmap: {str(e)}")
         return None
@@ -216,7 +243,7 @@ def main():
         unsafe_allow_html=True
     )
     
-    if not configure_genai():
+    if not configure_groq():
         return
 
     st.subheader("📓Create Mindmap from PDF file/ Tạo Mindmap từ file PDF")
@@ -239,7 +266,7 @@ def main():
                         with tab1:
                             st.subheader("Interactive Mindmap")
                             html_content = create_markmap_html(markdown_content)
-                            components.html(html_content, height=700, width=1000, scrolling=True)
+                            components.html(html_content, height=700, scrolling=True)
                         
                         with tab2:
                             st.subheader("Markdown")
