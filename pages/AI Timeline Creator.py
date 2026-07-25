@@ -1,33 +1,54 @@
 import streamlit as st
-import google.generativeai as genai
+from groq import Groq
 import streamlit.components.v1 as components
 import json
 
 # Setup Gemini API
-genai.configure(api_key= st.secrets["GEMINI_API_KEY"])
+API_KEY = st.secrets["GROQ_API_KEY"]
+client = Groq(api_key=API_KEY)
 
-def get_events_from_gemini(description):
+def get_events_from_groq(description):
     prompt = f"""
-    Given the description below, generate ONLY a list of events with dates. If requirement is in Vietnamese, show result in Vietnamese language.
+    Given the description below, generate ONLY a list of events with dates.
+    If requirement is in Vietnamese, show result in Vietnamese language.
     Output format must be strict JSON array like:
-    
+
     [
       {{"date": "1957-10-15", "event": "FORTRAN introduced"}},
       {{"date": "1991-02-20", "event": "Python released"}}
     ]
-    
-    If no exact day available, just use year, e.g. "1957".
 
+    If no exact day available, just use year, e.g. "1957".
     Description: {description}
     """
-    model = genai.GenerativeModel('gemini-3-pro-preview')
-    response = model.generate_content(prompt)
-    # Find first JSON block
-    text = response.text.strip()
+
+    response = client.chat.completions.create(
+
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {
+                "role": "system",
+                "content": "Return ONLY valid JSON."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+
+        temperature=0.2,
+        max_tokens=4096
+
+    )
+
+    text = response.choices[0].message.content.strip()
+
     start = text.find('[')
     end = text.rfind(']')
+
     json_text = text[start:end+1]
     events = json.loads(json_text)
+
     return events
 
 def build_mermaid_timeline(title, events):
@@ -50,7 +71,6 @@ def render_mermaid(mermaid_code):
         </div>
         """,
         height=700,
-        width=1000,
         scrolling=True,
     )
 
@@ -77,7 +97,7 @@ if st.button("Create Timeline"):
     if description:
         with st.spinner('AI is building Timeline...'):
             try:
-                events = get_events_from_gemini(description)
+                events = get_events_from_groq(description)
                 mermaid_code = build_mermaid_timeline(title, events)
                 st.subheader("Interactive Timeline")
                 render_mermaid(mermaid_code)
@@ -110,3 +130,4 @@ st.markdown(
         """,
         unsafe_allow_html=True
 )
+
