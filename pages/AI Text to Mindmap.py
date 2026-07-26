@@ -279,5 +279,25 @@ def main():
 if __name__ == "__main__":
     main()
 
+st.markdown("""
+<style>
+div.stButton > button:first-child {
+    background-color: blue;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+}
 
+div.stButton > button:first-child:hover {
+    background-color: #002244;
+    color: white;
+}
+
+div.stButton > button:first-child:active {
+    background-color: #0D47A1;
+}
+</style>
+""", unsafe_allow_html=True)
 
