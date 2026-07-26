@@ -67,3 +67,26 @@ if st.session_state.logged_in:
 else:
     login()
 
+st.markdown(
+        """
+        <style>
+        div.stButton > button {
+            background-color: blue;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        div.stButton > button:hover {
+            background-color: #002244;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+)
