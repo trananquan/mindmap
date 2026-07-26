@@ -128,7 +128,7 @@ st.markdown(
             font-size: 16px;
             margin: 4px 2px;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 8px;
         }
         div.stButton > button:hover {
             background-color: #002244;
